@@ -5,7 +5,7 @@
   "dependencies": {},
   "scripts": {
     "build": "webpack",
-    "start:dev": "webpack serve"
+    "start": "webpack serve"
   },
   "devDependencies": {
     "ts-loader": "^8.0.17",
