@@ -1,82 +1,29 @@
 import { Game } from "./game";
 import { Player } from "./player";
+import { blockSize } from "./utils";
 
 const display = document.querySelector("pre");
 
+
 const height = innerHeight - 150;
 const width = innerWidth - 5;
+const bloxY = parseInt((width/blockSize).toFixed(0),10)
+const bloxX = parseInt((height/blockSize).toFixed(0),10)
 
 const canvas = document.querySelector("canvas");
-canvas.height = height;
-canvas.width = width;
-const ctx = canvas.getContext("2d");
+canvas.height = bloxX*blockSize;
+canvas.width = bloxY*blockSize;;
 
-let gravity = 0.5;
-
-let holdLeft = false;
-let holdRight = false;
-
-const player = new Player(200, 200, 10, 20);
-const game = new Game(canvas);
+const game = new Game(canvas, display, new Player());
 
 const update = () => {
-  player.run(holdLeft, holdRight, canvas);
-
-  for (let p of game.platforms) {
-    player.isOnGround(p);
-  }
-  if (player.onGround) {
-    player.velocity.x *= 0.8;
-  } else {
-    player.velocity.y += gravity;
-  }
-  game.displayStats(
-    display,
-    `
-    🐄
-canvas:
-h: ${canvas.height}
-w: ${canvas.width}
------
-Player:
-x: ${player.x}
-y: ${player.y}
-`
-  );
-  game.draw(ctx);
-
-  game.drawPlatforms(ctx);
-  player.draw(ctx);
+  game.tick();
 };
 const keyUp = evt => {
-  switch (evt.keyCode) {
-    case 37:
-      holdLeft = false;
-      break;
-    case 38:
-      if (player.velocity.y < -3) {
-        player.velocity.y = -3;
-      }
-      break;
-    case 39:
-      holdRight = false;
-      break;
-  }
+  game.keyUp(evt.keyCode);
 };
 const keyDown = evt => {
-  switch (evt.keyCode) {
-    case 37:
-      holdLeft = true;
-      break;
-    case 38:
-      if (player.onGround) {
-        player.velocity.y = -10;
-      }
-      break;
-    case 39:
-      holdRight = true;
-      break;
-  }
+  game.keyDown(evt.keyCode);
 };
 
 setInterval(update, 1000 / 30);

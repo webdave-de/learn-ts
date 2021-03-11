@@ -1,22 +1,30 @@
 import { Platform } from "./platform";
+import { blockSize } from "./utils";
 
 export class Player {
   public onGround = false;
+  faceLeft = false;
   public velocity = {
     x: 0,
     y: 0
   };
   public move = { left: false, right: false };
+  sprite;
   constructor(
-    public x: number,
-    public y: number,
-    public w: number,
-    public h: number,
+    public x: number = 200,
+    public y: number = 200,
+    public w: number = 10,
+    public h: number = 20,
     public color = "blue"
-  ) {}
+  ) {
+    const _sprite = new Image()
+    _sprite.src = './img/running.png';
+    _sprite.onload = ()=> this.sprite = _sprite
+  }
 
   run(holdLeft: boolean, holdRight: boolean, canvas: HTMLCanvasElement) {
     this.onGround = false;
+    this.faceLeft = holdLeft
     if (holdLeft) {
       this.velocity.x += -2;
     }
@@ -66,8 +74,8 @@ export class Player {
   }
 
   draw(ctx: CanvasRenderingContext2D) {
-    ctx.fillStyle = this.color;
-    ctx.fillRect(this.x - this.w, this.y - this.h, this.w, this.h);
+    const direction = this.faceLeft? 300: 0
+    ctx.drawImage(this.sprite, 0, direction,182,300,this.x, this.y-blockSize, 36.4, blockSize)
   }
   draw2(ctx: CanvasRenderingContext2D) {
     ctx.font = "30px Arial";
