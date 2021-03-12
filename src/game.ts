@@ -1,4 +1,5 @@
 import { Coin } from './coin';
+import { shades } from './img/shades.base64';
 import { Platform } from './platform';
 import { Player } from './player';
 import { blockSize } from './utils';
@@ -13,6 +14,8 @@ export class Game {
   sprite;
   bloxX: number;
   bloxY: number;
+  shadeX = 1;
+  shadeY = 2;
   constructor(
     public canvas: HTMLCanvasElement,
     public display: HTMLPreElement,
@@ -21,46 +24,68 @@ export class Game {
     this.bloxY = parseInt((this.canvas.width / blockSize).toFixed(0), 10);
     this.bloxX = parseInt((this.canvas.height / blockSize).toFixed(0), 10);
     this.ctx = this.canvas.getContext('2d');
-   
 
-    const _sprite = new Image()
-    _sprite.src = './img/sprite.png';
-    _sprite.onload = ()=> this.sprite = _sprite
+    const _sprite = new Image();
+    // _sprite.src = './img/sprite.png';
+    _sprite.src = shades;
+    _sprite.onload = () => (this.sprite = _sprite);
 
-    for (let i = 0; i < 30; i++) {
+    this.start(
+      Math.floor(Math.random() * 31) + 1,
+      Math.floor(Math.random() * 11) + 1,
+      Math.floor(Math.random() * 4),
+      Math.floor(Math.random() * 4)
+    );
+  }
+
+  start(blox: number, coinz: number, shadeX: number, shadeY: number) {
+    console.log(shadeX, shadeY);
+    this.shadeX = shadeX;
+    this.shadeY = shadeY;
+
+    for (let i = 0; i < blox; i++) {
       this.platforms.push(
         new Platform(
-          (Math.floor(Math.random() * this.bloxX) + 1)*blockSize,
-          (Math.floor(Math.random() * this.bloxX) + 1)*blockSize,
-          (Math.floor(Math.random() * 6) + 1)*blockSize,
-          blockSize
+          (Math.floor(Math.random() * this.bloxX) + 1) * blockSize,
+          (Math.floor(Math.random() * this.bloxX) + 1) * blockSize,
+          (Math.floor(Math.random() * 6) + 1) * blockSize,
+          blockSize,
+          shadeY,
+          shadeX
         )
       );
     }
-    for (let i = 0; i < 10; i++) {5
+    for (let i = 0; i < coinz; i++) {
       this.coins.push(
         new Coin(
-          (Math.floor(Math.random() * this.bloxX) + 1)*blockSize,
-          (Math.floor(Math.random() * this.bloxX) + 1)*blockSize
+          (Math.floor(Math.random() * this.bloxX) + 1) * blockSize,
+          (Math.floor(Math.random() * this.bloxX) + 1) * blockSize
         )
       );
     }
   }
 
   draw() {
-    this.drawBackground()
+    this.drawBackground();
   }
 
-  drawBackground(){
-    const sx = 1;
-    const sy = 2;
-    for(let i=0;i<=this.bloxX; i++){
-      for(let j=0;j<=this.bloxY; j++){
-        this.ctx.drawImage(this.sprite, sx*300, sy*300,300,300,j*blockSize,i*blockSize,blockSize, blockSize)
+  drawBackground() {
+    for (let i = 0; i <= this.bloxX; i++) {
+      for (let j = 0; j <= this.bloxY; j++) {
+        this.ctx.drawImage(
+          this.sprite,
+          this.shadeX * 300,
+          this.shadeY * 300,
+          300,
+          300,
+          j * blockSize,
+          i * blockSize,
+          blockSize,
+          blockSize
+        );
       }
     }
   }
-
 
   drawPlatforms(ctx: CanvasRenderingContext2D) {
     for (let pl of this.platforms) {
@@ -86,10 +111,9 @@ export class Game {
     }
 
     for (let i = 0; i < this.coins.length; i++) {
-      const c = this.coins[i]
-      if(this.player.collectCoin(c)){
+      const c = this.coins[i];
+      if (this.player.collectCoin(c)) {
         this.coins.splice(i, 1);
-        console.log('HIT')
       }
     }
 

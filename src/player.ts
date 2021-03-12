@@ -1,8 +1,10 @@
 import { Coin } from './coin';
+import { player } from './img/player.base64';
 import { Platform } from './platform';
 import { blockSize } from './utils';
 
 export class Player {
+  coin;
   public onGround = false;
   faceLeft = false;
   public velocity = {
@@ -11,14 +13,21 @@ export class Player {
   };
   public move = { left: false, right: false };
   sprite;
+  center: {
+    x: number,
+    y: number
+  } = {
+    x :blockSize/2,
+    y: blockSize/2
+  };
   constructor(
-    public x: number = 200,
-    public y: number = 200,
+    public x: number = 0,
+    public y: number = 0,
     public w: number = 36.4,
     public h: number = blockSize
   ) {
     const _sprite = new Image();
-    _sprite.src = './img/running.png';
+    _sprite.src = player
     _sprite.onload = () => (this.sprite = _sprite);
   }
 
@@ -36,6 +45,10 @@ export class Player {
     }
     this.x += this.velocity.x;
     this.y += this.velocity.y;
+
+    this.center.x = this.x + this.w/2
+    this.center.y = this.y - this.h/2
+
 
     this.stayOnCanvas(canvas);
   }
@@ -68,7 +81,6 @@ export class Player {
       this.y < p.y + p.h
     ) {
       this.y = p.y;
-      console.log(p)
       this.onGround = true;
       this.velocity.y = 0;
     }
@@ -93,31 +105,11 @@ export class Player {
     ctx.fillText('🐄', this.x, this.y);
   }
   collectCoin(c: Coin) {
-    const playerPosition = {
-      left: this.x,
-      right: this.x + this.w,
-      top: this.y,
-      botton: this.y + this.h,
-    };
-    const coinPosition = {
-      left: c.x,
-      right: c.x + c.w,
-      top: c.y,
-      botton: c.y + c.h,
-    };
-    if (coinPosition.left > playerPosition.right) {
-      return false;
-    }
-    if (coinPosition.right < playerPosition.left) {
-      return false;
-    }
-
-    if (coinPosition.top > playerPosition.botton) {
-      return false;
-    }
-    if (coinPosition.botton < playerPosition.top) {
-      return false;
-    }
-    return true;
+    this.coin = c;
+    
+    return (
+      c.center.x-15 < this.center.x && this.center.x < c.center.x+15 &&
+      c.center.y-15 < this.center.y && this.center.y < c.center.y+15
+    )
   }
 }
