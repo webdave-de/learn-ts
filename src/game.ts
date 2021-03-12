@@ -1,3 +1,4 @@
+import { Coin } from './coin';
 import { Platform } from './platform';
 import { Player } from './player';
 import { blockSize } from './utils';
@@ -5,6 +6,7 @@ import { blockSize } from './utils';
 export class Game {
   public gravity = 0.5;
   public platforms: Platform[] = [];
+  public coins: Coin[] = [];
   private ctx: CanvasRenderingContext2D;
   private leftDown = false;
   private rightDown = false;
@@ -35,12 +37,17 @@ export class Game {
         )
       );
     }
+    for (let i = 0; i < 10; i++) {5
+      this.coins.push(
+        new Coin(
+          (Math.floor(Math.random() * this.bloxX) + 1)*blockSize,
+          (Math.floor(Math.random() * this.bloxX) + 1)*blockSize
+        )
+      );
+    }
   }
 
-  draw(ctx: CanvasRenderingContext2D) {
-    // ctx.fillStyle = 'green';
-    // ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    
+  draw() {
     this.drawBackground()
   }
 
@@ -61,6 +68,12 @@ export class Game {
     }
   }
 
+  drawCoins(ctx: CanvasRenderingContext2D) {
+    for (let c of this.coins) {
+      c.draw(ctx);
+    }
+  }
+
   displayStats(innerhtml: string) {
     // this.display.innerHTML = innerhtml;
   }
@@ -71,14 +84,25 @@ export class Game {
     for (let p of this.platforms) {
       this.player.isOnGround(p);
     }
+
+    for (let i = 0; i < this.coins.length; i++) {
+      const c = this.coins[i]
+      if(this.player.collectCoin(c)){
+        this.coins.splice(i, 1);
+        console.log('HIT')
+      }
+    }
+
     if (this.player.onGround) {
       this.player.velocity.x *= 0.8;
     } else {
       this.player.velocity.y += this.gravity;
     }
-    this.draw(this.ctx);
+    this.draw();
 
     this.drawPlatforms(this.ctx);
+    this.drawCoins(this.ctx);
+
     this.displayStats(
       `
         🐄

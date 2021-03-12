@@ -1,30 +1,30 @@
-import { Platform } from "./platform";
-import { blockSize } from "./utils";
+import { Coin } from './coin';
+import { Platform } from './platform';
+import { blockSize } from './utils';
 
 export class Player {
   public onGround = false;
   faceLeft = false;
   public velocity = {
     x: 0,
-    y: 0
+    y: 0,
   };
   public move = { left: false, right: false };
   sprite;
   constructor(
     public x: number = 200,
     public y: number = 200,
-    public w: number = 10,
-    public h: number = 20,
-    public color = "blue"
+    public w: number = 36.4,
+    public h: number = blockSize
   ) {
-    const _sprite = new Image()
+    const _sprite = new Image();
     _sprite.src = './img/running.png';
-    _sprite.onload = ()=> this.sprite = _sprite
+    _sprite.onload = () => (this.sprite = _sprite);
   }
 
   run(holdLeft: boolean, holdRight: boolean, canvas: HTMLCanvasElement) {
     this.onGround = false;
-    this.faceLeft = holdLeft
+    this.faceLeft = holdLeft;
     if (holdLeft) {
       this.velocity.x += -2;
     }
@@ -68,17 +68,56 @@ export class Player {
       this.y < p.y + p.h
     ) {
       this.y = p.y;
+      console.log(p)
       this.onGround = true;
       this.velocity.y = 0;
     }
   }
 
   draw(ctx: CanvasRenderingContext2D) {
-    const direction = this.faceLeft? 300: 0
-    ctx.drawImage(this.sprite, 0, direction,182,300,this.x, this.y-blockSize, 36.4, blockSize)
+    const direction = this.faceLeft ? 300 : 0;
+    ctx.drawImage(
+      this.sprite,
+      0,
+      direction,
+      182,
+      300,
+      this.x,
+      this.y - blockSize,
+      this.w,
+      this.h
+    );
   }
   draw2(ctx: CanvasRenderingContext2D) {
-    ctx.font = "30px Arial";
-    ctx.fillText("🐄", this.x, this.y);
+    ctx.font = '30px Arial';
+    ctx.fillText('🐄', this.x, this.y);
+  }
+  collectCoin(c: Coin) {
+    const playerPosition = {
+      left: this.x,
+      right: this.x + this.w,
+      top: this.y,
+      botton: this.y + this.h,
+    };
+    const coinPosition = {
+      left: c.x,
+      right: c.x + c.w,
+      top: c.y,
+      botton: c.y + c.h,
+    };
+    if (coinPosition.left > playerPosition.right) {
+      return false;
+    }
+    if (coinPosition.right < playerPosition.left) {
+      return false;
+    }
+
+    if (coinPosition.top > playerPosition.botton) {
+      return false;
+    }
+    if (coinPosition.botton < playerPosition.top) {
+      return false;
+    }
+    return true;
   }
 }
